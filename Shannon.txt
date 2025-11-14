@@ -1,0 +1,58 @@
+SHANNONFANO
+
+clc; clear all; close all;
+
+% Symbols and their probabilities
+sym = {'X1','X2','X3','X4','X5','X6'};
+p = [0.3 0.25 0.2 0.12 0.08 0.05];
+
+% Sort in descending order
+[p, idx] = sort(p, 'descend');
+sym = sym(idx);
+
+% Shannon-Fano coding function
+ function code = shannon_fano(p)
+
+  n = length(p);
+  if n == 1
+      code = {''};
+      return;
+  end
+
+  % BEST SPLIT POINT
+  total = sum(p);
+  best_s = 1;
+  best_diff = abs((p(1) - (total - p(1))));
+
+  for s = 2:n-1
+      diff = abs(sum(p(1:s)) - sum(p(s+1:n)));
+      if diff < best_diff
+          best_diff = diff;
+          best_s = s;
+      end
+  end
+
+  s = best_s;
+
+  % Recursive splitting
+  left = shannon_fano(p(1:s));
+  right = shannon_fano(p(s+1:end));
+
+  code = [strcat('0', left), strcat('1', right)];
+end
+
+% Generate codes
+codes = shannon_fano(p);
+
+% Display codes
+disp('Symbol   Prob   Code');
+for i = 1:length(sym)
+  fprintf('%s\t %.2f\t %s\n', sym{i}, p(i), codes{i});
+end
+
+% Calculate parameters
+H = -sum(p .* log2(p));              % Entropy
+L = sum(p .* cellfun(@length, codes)); % Avg code length
+eff = (H/L)*100; red = 100-eff;       % Efficiency, Redundancy
+
+fprintf('\nEntropy = %.4f bits\nAvg Length = %.4f bits\nEfficiency = %.2f%%\nRedundancy = %.2f%%\n', H, L, eff, red);
