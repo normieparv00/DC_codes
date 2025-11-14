@@ -1,0 +1,79 @@
+% Parameters
+n = 3;
+taps = [3 1];
+state = [1 1 1];
+N = 2^n - 1;
+
+% LFSR m-sequence generation
+mseq = zeros(1, N);
+for i = 1:N
+    mseq(i) = state(end);
+    state = [mod(sum(state(taps)),2) state(1:end-1)];
+end
+
+disp('Generated m-sequence:'); disp(mseq);
+
+% Plot m-sequence
+figure; stem(mseq,'filled'); grid on;
+title('m-sequence'); xlabel('Index'); ylabel('Bit');
+
+% Statistics
+fprintf('Period = %d\n', N);
+fprintf('1s = %d, 0s = %d\n', sum(mseq), N - sum(mseq));
+
+% Autocorrelation
+r = xcorr(2*mseq-1, 'coeff');
+figure; stem(r,'filled'); grid on;
+title('Autocorrelation'); xlabel('Lag'); ylabel('r(k)');
+
+
+
+
+%alternate
+clc;
+clear all;
+
+t = [3,1];
+
+intitl = [1 1 1];
+n = 3;
+num = 2^n-1;
+mseq = zeros(1,num);
+seq = intitl;
+for i = 1:num
+    mseq(i) = seq(end);
+    
+    feedback = mod(sum(seq(t)),2);
+    
+    seq = [feedback seq(1:end-1)];
+end
+
+disp("the mseq");
+disp(mseq);
+figure;
+stem(mseq);
+xlabel("input ");
+ylabel("output");
+grid;
+
+
+%the elgnth
+period = length(mseq);
+disp(["period = ",num2str(period)]);
+
+
+%the balance property
+num1 = sum(mseq);
+num0 = period-num1;
+
+printf("1 = %d 0 = %d\n",num1,num0);
+
+%autocorrection property
+bpmseq = 2*mseq-1;
+c = xcorr(bpmseq);
+
+figure;
+stem(c);
+xlabel("x");
+ylabel("y");
+grid on;
